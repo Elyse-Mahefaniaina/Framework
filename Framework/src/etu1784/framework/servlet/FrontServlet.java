@@ -1,6 +1,9 @@
 package etu1784.framework.servlet;
 
 import java.io.IOException;
+import java.util.HashMap;
+
+import etu1784.framework.Mapping;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +14,7 @@ import util.Util;
 public class FrontServlet extends HttpServlet {
 
     protected Util util;
+    private HashMap<String, Mapping> mappingUrls;
 
     @Override
     public void init() throws ServletException {
@@ -18,6 +22,7 @@ public class FrontServlet extends HttpServlet {
         try {
 
             this.util = new Util();
+            this.mappingUrls = new HashMap<>();
 
         } catch (Exception e) {
             throw new RuntimeException(e);
