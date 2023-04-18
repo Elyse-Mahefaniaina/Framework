@@ -1,8 +1,9 @@
 package util;
 
+
+import java.util.List;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Util {
 
@@ -13,6 +14,7 @@ public class Util {
 
         return url;
     }
+
 
     public List<Class<?>> getAllClass(String path, String tomPath) throws ClassNotFoundException {
         List<Class<?>> classes = new ArrayList<>();
@@ -36,7 +38,7 @@ public class Util {
                         .replace(".class", "")
                         .replace("/", ".");
                 Class<?> clazz = Class.forName(className);
-
+                
                 classes.add(clazz);
             }
         }
