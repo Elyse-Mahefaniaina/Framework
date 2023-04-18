@@ -1,12 +1,15 @@
 package etu1784.framework.servlet;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 
 import etu1784.framework.Mapping;
 import etu1784.framework.MethodAnnotation;
+import etu1784.framework.ModelView;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -65,5 +68,25 @@ public class FrontServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String url = request.getRequestURL().toString();
         url = util.processUrl(url, request.getContextPath());
+
+        try {
+            Mapping map = mappingUrls.get(url);
+
+            if (map == null) {
+                throw new Exception("Not Found");
+            }
+
+            Class<?> clazz = Class.forName(map.getClassName());
+            Object o = clazz.getDeclaredConstructor().newInstance();
+            ModelView mv = (ModelView) o.getClass().getMethod(map.getMethod()).invoke(o);
+
+            RequestDispatcher dispatcher = request.getRequestDispatcher(mv.getView());
+            dispatcher.forward(request, response);
+
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
+                 InvocationTargetException ignored) { } catch (
+                Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

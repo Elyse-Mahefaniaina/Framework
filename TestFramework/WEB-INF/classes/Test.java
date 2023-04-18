@@ -8,6 +8,8 @@ public class Test {
     public ModelView test() {
         ModelView mv = new ModelView();
 
+        mv.setView("/test.jsp");
+
         return mv;
     } 
 }
