@@ -1,26 +1,25 @@
 package etu1784.framework.servlet;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
+import java.lang.reflect.InvocationTargetException;
 
-import etu1784.framework.Mapping;
-import etu1784.framework.MethodAnnotation;
-import etu1784.framework.ModelView;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import etu1784.framework.Mapping;
 import util.Util;
+import etu1784.framework.MethodAnnotation;
+import etu1784.framework.ModelView;
 
 public class FrontServlet extends HttpServlet {
-
+    HashMap<String, Mapping> mappingUrls;
     protected Util util;
-    private HashMap<String, Mapping> mappingUrls;
 
     @Override
     public void init() throws ServletException {
@@ -80,11 +79,16 @@ public class FrontServlet extends HttpServlet {
             Object o = clazz.getDeclaredConstructor().newInstance();
             ModelView mv = (ModelView) o.getClass().getMethod(map.getMethod()).invoke(o);
 
+            HashMap<String, Object> donne = mv.getData();
+            for(String key : donne.keySet()) {
+                System.out.println(key);
+                request.setAttribute(key, donne.get(key));
+            }
+
             RequestDispatcher dispatcher = request.getRequestDispatcher(mv.getView());
             dispatcher.forward(request, response);
 
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
-                 InvocationTargetException ignored) { } catch (
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ignored) { } catch (
                 Exception e) {
             throw new RuntimeException(e);
         }
