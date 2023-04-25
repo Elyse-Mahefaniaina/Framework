@@ -1,6 +1,7 @@
 package etu1784.framework.servlet;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +78,19 @@ public class FrontServlet extends HttpServlet {
 
             Class<?> clazz = Class.forName(map.getClassName());
             Object o = clazz.getDeclaredConstructor().newInstance();
+            Field[] allField = o.getClass().getDeclaredFields();
+            String field_name;
+            String value;
+            for(Field f : allField) {
+
+                field_name = f.getName();
+                value = request.getParameter(field_name);
+
+                if(value != null) {
+                    o.getClass().getMethod("set"+util.casse(field_name), String.class).invoke(o, value);
+                }
+            }
+
             ModelView mv = (ModelView) o.getClass().getMethod(map.getMethod()).invoke(o);
 
             HashMap<String, Object> donne = mv.getData();
