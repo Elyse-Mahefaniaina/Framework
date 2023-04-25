@@ -5,16 +5,15 @@ import java.util.List;
 import java.io.File;
 import java.util.ArrayList;
 
+
 public class Util {
 
-    public String processUrl(String url_input, String ctx) {
-        ctx+="/";
-        int ctx_ind = url_input.indexOf(ctx);
-        String url = url_input.substring(ctx_ind + ctx.length());
+    public String casse(String input) {
+        char[] strrep = input.toCharArray();
+        strrep[0] = Character.toUpperCase(strrep[0]);
 
-        return url;
+        return new String(strrep);
     }
-
 
     public List<Class<?>> getAllClass(String path, String tomPath) throws ClassNotFoundException {
         List<Class<?>> classes = new ArrayList<>();
@@ -38,11 +37,19 @@ public class Util {
                         .replace(".class", "")
                         .replace("/", ".");
                 Class<?> clazz = Class.forName(className);
-                
+
                 classes.add(clazz);
             }
         }
         return classes;
+    }
+
+    public String processUrl(String url_input, String ctx) {
+        ctx+="/";
+        int ctx_ind = url_input.indexOf(ctx);
+        String url = url_input.substring(ctx_ind + ctx.length());
+
+        return url;
     }
 
 }
