@@ -1,7 +1,7 @@
 # FRAMEWORK
 ## 1. Presentation
 Framework JAVA similaire à spring MVC open JAR <br>
-Sur toute les plateformes (Windows/Ubuntu/Mac Book/ ...)
+Sur toute les plateformes (Windows/Linux/Mac Book/ ...)
 
 ## 2. Pré-requis
 - JDK version 17.0.6 au minimum
