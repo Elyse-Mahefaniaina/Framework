@@ -56,7 +56,7 @@ public ModelView getData() {
     request.getAttribute("data")
 ```
 * Pour l'envoie des données depuis la View vers la model <br>
-Il faut que les nom des paramètres correspond au nom de l'attribut du classe correspondant ou le nom de parametre.
+Il faut que les nom des paramètres correspond au nom de l'attribut du classe ou le nom de l'argument.
  
 ## <b> Remarque </b>
 * Toute les class ayant une method d'action doit avoir des setter qui prend <b> String </b> comme argument et dans ses setter il faut les caster au bon type et appeler le vraie __setters__
