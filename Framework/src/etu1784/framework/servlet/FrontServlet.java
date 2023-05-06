@@ -1,13 +1,9 @@
 package etu1784.framework.servlet;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.lang.reflect.InvocationTargetException;
 
-import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,12 +11,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import etu1784.framework.Mapping;
 import util.Util;
-import etu1784.framework.MethodAnnotation;
 import etu1784.framework.ModelView;
 
 public class FrontServlet extends HttpServlet {
     HashMap<String, Mapping> mappingUrls;
-    protected Util util;
+    private Util util;
 
     @Override
     public void init() throws ServletException {
@@ -29,26 +24,9 @@ public class FrontServlet extends HttpServlet {
 
             this.util = new Util();
             this.mappingUrls = new HashMap<>();
-
             final String tomPath = "/WEB-INF/classes/";
             String path = getServletContext().getRealPath(tomPath);
-            List<Class<?>> allClass = util.getAllClass(path, tomPath);
-
-            Mapping mapping;
-            Method[] allMethods;
-            for(Class<?> c : allClass) {
-                allMethods = c.getMethods();
-
-                for(Method m : allMethods) {
-                    if(m.isAnnotationPresent(MethodAnnotation.class)) {
-                        mapping = new Mapping();
-                        mapping.setClassName(c.getName());
-                        mapping.setMethod(m.getName());
-                        mappingUrls.put(m.getAnnotation(MethodAnnotation.class).url(), mapping);
-
-                    }
-                }
-            }
+            util.loadMapping(path, tomPath, mappingUrls);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -72,38 +50,17 @@ public class FrontServlet extends HttpServlet {
         try {
             Mapping map = mappingUrls.get(url);
 
-            if (map == null) {
-                throw new Exception("Not Found");
-            }
+            if (map == null) throw new Exception("Not Found");
 
-            Class<?> clazz = Class.forName(map.getClassName());
-            Object o = clazz.getDeclaredConstructor().newInstance();
-            Field[] allField = o.getClass().getDeclaredFields();
-            String field_name;
-            String value;
-            for(Field f : allField) {
+            ModelView mv = util.invokeMethod(request, map);
+            util.setAttributeRequest(request, mv);
+            request.getRequestDispatcher(mv.getView()).forward(request, response);
 
-                field_name = f.getName();
-                value = request.getParameter(field_name);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ignored) {
 
-                if(value != null) {
-                    o.getClass().getMethod("set"+util.casse(field_name), String.class).invoke(o, value);
-                }
-            }
-
-            ModelView mv = (ModelView) o.getClass().getMethod(map.getMethod()).invoke(o);
-
-            HashMap<String, Object> donne = mv.getData();
-            for(String key : donne.keySet()) {
-                System.out.println(key);
-                request.setAttribute(key, donne.get(key));
-            }
-
-            RequestDispatcher dispatcher = request.getRequestDispatcher(mv.getView());
-            dispatcher.forward(request, response);
-
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ignored) { } catch (
-                Exception e) {
+        } catch (ServletException | IOException e) {
+            throw e;
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
