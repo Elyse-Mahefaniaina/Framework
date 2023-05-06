@@ -147,6 +147,11 @@ public class Util {
 
     public Object castPrimaryType(String data, Class<?> type) throws ParseException {
         if(data == null || type == null) return null;
+        if(data.equals("")) {
+            if(type.equals(Date.class)){
+                return null;
+            }else return 0;
+        }
 
         if (type.equals(Date.class)) {
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
