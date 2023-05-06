@@ -1,3 +1,5 @@
+<%@page import="test.Test"%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +9,8 @@
     <title>Test JSP</title>
 </head>
 <body>
-    Votre nom est:<% out.print(request.getAttribute("test")); %>    
+    <% Test t = (Test) request.getAttribute("obj");  %>
+    id= <%= t.getId()  %><br>    
+    nom= <%= t.getNom()  %>    
 </body>
 </html>

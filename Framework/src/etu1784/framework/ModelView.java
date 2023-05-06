@@ -26,4 +26,5 @@ public class ModelView {
     public void setData(HashMap<String, Object> data) {
         this.data = data;
     }
+
 }
