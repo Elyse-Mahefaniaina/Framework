@@ -1,7 +1,9 @@
 package test;
 
 import etu1784.framework.ModelView;
+import etu1784.framework.FileUpload;
 import etu1784.framework.MethodAnnotation;
+
 
 public class Test {
 
@@ -23,7 +25,20 @@ public class Test {
         ModelView mv = new ModelView();
 
         this.setId(identifiant);
-        this.setNom(name);
+        this.setNom(name); 
+
+        mv.setView("/test.jsp");
+        mv.addItem("obj", this);
+
+        return mv;
+    }
+
+    @MethodAnnotation( url = "upload.do", paramName = "fu")
+    public ModelView upload(FileUpload fu) {
+        ModelView mv = new ModelView();
+
+        this.setId(0);
+        this.setNom("Elyse"); 
 
         mv.setView("/test.jsp");
         mv.addItem("obj", this);

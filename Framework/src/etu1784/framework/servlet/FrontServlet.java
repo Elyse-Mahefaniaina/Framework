@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.lang.reflect.InvocationTargetException;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,8 +14,14 @@ import etu1784.framework.Mapping;
 import util.Util;
 import etu1784.framework.ModelView;
 
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 100
+)
 public class FrontServlet extends HttpServlet {
     HashMap<String, Mapping> mappingUrls;
+    HashMap<String, Object> singleton;
     private Util util;
 
     @Override
@@ -24,9 +31,10 @@ public class FrontServlet extends HttpServlet {
 
             this.util = new Util();
             this.mappingUrls = new HashMap<>();
+            this.singleton = new HashMap<>();
             final String tomPath = "/WEB-INF/classes/";
             String path = getServletContext().getRealPath(tomPath);
-            util.loadMapping(path, tomPath, mappingUrls);
+            util.loadMapping(path, tomPath, mappingUrls, singleton);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -52,7 +60,7 @@ public class FrontServlet extends HttpServlet {
 
             if (map == null) throw new Exception("Not Found");
 
-            ModelView mv = util.invokeMethod(request, map);
+            ModelView mv = util.invokeMethod(request, map, singleton);
             util.setAttributeRequest(request, mv);
             request.getRequestDispatcher(mv.getView()).forward(request, response);
 

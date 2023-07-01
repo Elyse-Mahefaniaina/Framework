@@ -1,11 +1,13 @@
 package util;
 
 
-import etu1784.framework.Mapping;
-import etu1784.framework.MethodAnnotation;
-import etu1784.framework.ModelView;
+import etu1784.framework.*;
+import etu1784.framework.type.ScopeType;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -20,12 +22,12 @@ import java.util.ArrayList;
 
 public class Util {
 
-    public ModelView invokeMethod(HttpServletRequest request, Mapping mapping) throws Exception {
+    public ModelView invokeMethod(HttpServletRequest request, Mapping mapping, HashMap<String, Object> singleton) throws Exception {
         ArrayList<Class<?>> type = new ArrayList<>();
         ArrayList<Object> value = new ArrayList<>();
         this.setArgValue(request, mapping, type, value);
 
-        Object o = this.setObjectByRequest(request, mapping);
+        Object o = this.setObjectByRequest(request, mapping, singleton);
 
         return (ModelView) o.getClass().getMethod(mapping.getMethod(), type.toArray(Class[]::new)).invoke(o, value.toArray(Object[]::new));
     }
@@ -61,7 +63,6 @@ public class Util {
                 break;
             }
         }
-
         return result;
     }
 
@@ -72,23 +73,30 @@ public class Util {
         }
     }
 
-    public Object setObjectByRequest(HttpServletRequest request, Mapping map) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
-        Class<?> clazz = Class.forName(map.getClassName());
-        Object o = clazz.getDeclaredConstructor().newInstance();
+    public Object setObjectByRequest(HttpServletRequest request, Mapping map, HashMap<String, Object> singleton) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException, ServletException, IOException, ParseException {
+        Object o = singleton.get(map.getClassName());
+        if(o == null) {
+            Class<?> clazz = Class.forName(map.getClassName());
+            o = clazz.getDeclaredConstructor().newInstance();
+        }
+        this.initObject(o);
 
         Field[] allField = o.getClass().getDeclaredFields();
         String field_name;
-        String value;
+        Object value_temp;
+        Object value;
 
         for(Field f : allField) {
             field_name = f.getName();
-            value = request.getParameter(field_name);
+            value_temp = (f.getType().equals(FileUpload.class)) ? Util.getValueUploadedFile(request, field_name) : request.getParameter(field_name);
 
-            if(value != null) {
+            if(value_temp != null) {
                 try {
+                    if(!f.getType().equals(FileUpload.class)) value = this.castPrimaryType(value_temp.toString(), f.getType());
+                    else value = value_temp;
                     o.getClass()
                             .getMethod("set"+this.casse(field_name), f.getType())
-                            .invoke(o, this.castPrimaryType(value, f.getType()));
+                            .invoke(o, value);
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
                 }
@@ -97,12 +105,38 @@ public class Util {
         return o;
     }
 
-    public void loadMapping(String path, String tomPath, HashMap<String, Mapping> mappingUrls) throws ClassNotFoundException {
+    private static FileUpload getValueUploadedFile(HttpServletRequest request, String field_name) throws ServletException, IOException {
+        Part filePart = request.getPart(field_name);
+        FileUpload result = new FileUpload();
+        result.setName(filePart.getSubmittedFileName());
+        result.setFile(filePart.getInputStream().readAllBytes());
+
+        return result;
+    }
+
+    private void initObject(Object o) throws IllegalAccessException, ParseException {
+        for (Field field : o.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            field.set(o, castPrimaryType("", field.getType()));
+            field.setAccessible(false);
+        }
+    }
+
+    public void loadMapping(String path, String tomPath, HashMap<String, Mapping> mappingUrls, HashMap<String, Object> singleton) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         List<Class<?>> allClass = this.getAllClass(path, tomPath);
         Mapping mapping;
         Method[] allMethods;
+
         for(Class<?> c : allClass) {
             allMethods = c.getMethods();
+
+            if (c.isAnnotationPresent(Scope.class)) {
+                if (c.getAnnotation(Scope.class).type().equals(ScopeType.SINGLETON)){
+                    Class<?> clazz = Class.forName(c.getName());
+                    Object temp = clazz.getDeclaredConstructor().newInstance();
+                    singleton.put(c.getName(), temp);
+                }
+            }
 
             for(Method m : allMethods) {
                 if(m.isAnnotationPresent(MethodAnnotation.class)) {
