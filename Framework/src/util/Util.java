@@ -2,6 +2,8 @@ package util;
 
 
 import etu1784.framework.*;
+import etu1784.framework.annotation.ActionMethod;
+import etu1784.framework.annotation.Scope;
 import etu1784.framework.type.ScopeType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
