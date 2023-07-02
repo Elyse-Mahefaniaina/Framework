@@ -35,10 +35,10 @@ public class Util {
     public void setArgValue(HttpServletRequest request, Mapping mapping, ArrayList<Class<?>> type, ArrayList<Object> value) throws Exception {
         Method m = this.getMethodByClassName(mapping.getClassName(), mapping.getMethod());
 
-        if(m.isAnnotationPresent(MethodAnnotation.class) && !m.getAnnotation(MethodAnnotation.class).paramName().equals("") ) {
+        if(m.isAnnotationPresent(ActionMethod.class) && !m.getAnnotation(ActionMethod.class).paramName().equals("") ) {
             type.addAll(List.of(m.getParameterTypes()));
 
-            String[] paramName = m.getAnnotation(MethodAnnotation.class).paramName().split(",");
+            String[] paramName = m.getAnnotation(ActionMethod.class).paramName().split(",");
 
             if(paramName.length != type.size()) throw new Exception("Number of argument exception \n" +
                     "\t" + paramName.length + " declared but " + type.size() + " expected");
@@ -139,11 +139,11 @@ public class Util {
             }
 
             for(Method m : allMethods) {
-                if(m.isAnnotationPresent(MethodAnnotation.class)) {
+                if(m.isAnnotationPresent(ActionMethod.class)) {
                     mapping = new Mapping();
                     mapping.setClassName(c.getName());
                     mapping.setMethod(m.getName());
-                    mappingUrls.put(m.getAnnotation(MethodAnnotation.class).url(), mapping);
+                    mappingUrls.put(m.getAnnotation(ActionMethod.class).url(), mapping);
                 }
             }
         }
