@@ -28,6 +28,7 @@ public class Test {
 
         mv.setView("/test.jsp");
         mv.addItem("obj", this);
+        mv.setJson(true);
 
         return mv;
     }

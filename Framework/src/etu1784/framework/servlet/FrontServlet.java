@@ -1,6 +1,7 @@
 package etu1784.framework.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.lang.reflect.InvocationTargetException;
 
@@ -16,6 +17,8 @@ import etu1784.framework.ModelView;
 
 @MultipartConfig()
 public class FrontServlet extends HttpServlet {
+    private PrintWriter out;
+
     HashMap<String, Mapping> mappingUrls;
     HashMap<String, Object> singleton;
     private Util util;
@@ -60,8 +63,13 @@ public class FrontServlet extends HttpServlet {
             if (map == null) throw new Exception("Not Found");
 
             ModelView mv = util.invokeMethod(request, map, singleton, sessionVariable);
-            util.setAttributeRequest(request, mv);
-            request.getRequestDispatcher(mv.getView()).forward(request, response);
+            if(!mv.isJson()){
+                util.setAttributeRequest(request, mv);
+                request.getRequestDispatcher(mv.getView()).forward(request, response);
+            }else {
+                out = response.getWriter();
+                out.print(mv.toJson());
+            }
 
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ignored) {
 

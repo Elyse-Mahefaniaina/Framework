@@ -1,6 +1,7 @@
 cd "D:\ITU\Web Dyn\Framework\out\production\Framework\"
 jar cvf fw.jar *
 copy "./fw.jar" "D:\ITU\Web Dyn\TestFramework\WEB-INF\lib\"
+copy "D:\ITU\Projet Programmation\JAR\gson-2.10.1.jar" "D:\ITU\Web Dyn\TestFramework\WEB-INF\lib\"
 cd "D:\ITU\Web Dyn\TestFramework\WEB-INF\classes"
 javac -cp "D:\ITU\Web Dyn\TestFramework\WEB-INF\lib\fw.jar" -d . *.java
 cd "D:\ITU\Web Dyn\TestFramework"
