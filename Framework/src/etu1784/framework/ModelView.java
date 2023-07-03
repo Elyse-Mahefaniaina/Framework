@@ -5,11 +5,13 @@ import com.google.gson.Gson;
 import java.util.HashMap;
 
 public class ModelView {
+    private boolean json;
+    private final Gson gson;
+    private boolean api;
+
     private String view;
     private HashMap<String, Object> data;
     private HashMap<String, String> session;
-    private boolean json;
-    private final Gson gson;
 
     public ModelView() {
         data = new HashMap<>();
@@ -19,7 +21,7 @@ public class ModelView {
     }
 
     public String toJson() {
-        return gson.toJson(data);
+        return !isApi() ? gson.toJson(data) : gson.toJson(data.get("objectDataResultFramework"));
     }
 
     public void addItem(String key, Object value) {
@@ -59,5 +61,13 @@ public class ModelView {
 
     public void setJson(boolean json) {
         this.json = json;
+    }
+
+    public boolean isApi() {
+        return api;
+    }
+
+    public void setApi(boolean api) {
+        this.api = api;
     }
 }

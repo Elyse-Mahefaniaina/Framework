@@ -5,6 +5,7 @@ import etu1784.framework.*;
 import etu1784.framework.annotation.ActionMethod;
 import etu1784.framework.annotation.Auth;
 import etu1784.framework.annotation.Scope;
+import etu1784.framework.annotation.restAPI;
 import etu1784.framework.type.ScopeType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,13 +34,21 @@ public class Util {
         Object o = this.setObjectByRequest(request, mapping, singleton);
 
         Method m = o.getClass().getMethod(mapping.getMethod(), type.toArray(Class[]::new));
-        if(m.isAnnotationPresent(Auth.class)){
-            String[] allPermission = m.getAnnotation(Auth.class).profil().split(",");
-            String userPermission = String.valueOf(request.getSession().getAttribute(session));
-            if (isIn(allPermission, userPermission)) {
-                return (ModelView) m.invoke(o, value.toArray(Object[]::new));
-            }else throw new Exception("Permission denied");
-        }else return (ModelView) m.invoke(o, value.toArray(Object[]::new));
+        if(!m.isAnnotationPresent(restAPI.class)) {
+            if(m.isAnnotationPresent(Auth.class)){
+                String[] allPermission = m.getAnnotation(Auth.class).profil().split(",");
+                String userPermission = String.valueOf(request.getSession().getAttribute(session));
+                if (isIn(allPermission, userPermission)) {
+                    return (ModelView) m.invoke(o, value.toArray(Object[]::new));
+                }else throw new Exception("Permission denied");
+            }else return (ModelView) m.invoke(o, value.toArray(Object[]::new));
+        } else {
+            ModelView mv = new ModelView();
+            mv.addItem("objectDataResultFramework", m.invoke(o, value.toArray(Object[]::new)));
+            mv.setJson(true);
+            mv.setApi(true);
+            return mv;
+        }
     }
 
     public void setArgValue(HttpServletRequest request, Mapping mapping, ArrayList<Class<?>> type, ArrayList<Object> value) throws Exception {
