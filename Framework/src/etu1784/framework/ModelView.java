@@ -1,16 +1,25 @@
 package etu1784.framework;
 
-import java.util.ArrayList;
+import com.google.gson.Gson;
+
 import java.util.HashMap;
 
 public class ModelView {
     private String view;
     private HashMap<String, Object> data;
     private HashMap<String, String> session;
+    private boolean json;
+    private final Gson gson;
 
     public ModelView() {
         data = new HashMap<>();
         session = new HashMap<>();
+        json = false;
+        gson = new Gson();
+    }
+
+    public String toJson() {
+        return gson.toJson(data);
     }
 
     public void addItem(String key, Object value) {
@@ -42,5 +51,13 @@ public class ModelView {
 
     public void setSession(HashMap<String, String> session) {
         this.session = session;
+    }
+
+    public boolean isJson() {
+        return json;
+    }
+
+    public void setJson(boolean json) {
+        this.json = json;
     }
 }
