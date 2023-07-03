@@ -95,6 +95,11 @@ public class Util {
         for (String key : session.keySet()) {
             request.getSession().setAttribute(key, session.get(key));
         }
+
+        List<String> removeSession = mv.getRemoveSession();
+        for (String s : removeSession) {
+            request.getSession().removeAttribute(s);
+        }
     }
 
     public Object setObjectByRequest(HttpServletRequest request, Mapping map, HashMap<String, Object> singleton) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException, ServletException, IOException, ParseException {

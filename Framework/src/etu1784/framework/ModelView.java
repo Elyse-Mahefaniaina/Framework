@@ -2,7 +2,9 @@ package etu1784.framework;
 
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class ModelView {
     private boolean json;
@@ -12,10 +14,12 @@ public class ModelView {
     private String view;
     private HashMap<String, Object> data;
     private HashMap<String, String> session;
+    private List<String> removeSession;
 
     public ModelView() {
         data = new HashMap<>();
         session = new HashMap<>();
+        removeSession = new ArrayList<>();
         json = false;
         gson = new Gson();
     }
@@ -30,6 +34,10 @@ public class ModelView {
 
     public void addSession(String key, String value) {
         session.put(key, value);
+    }
+
+    public void removeSession(String sessionName) {
+        this.getRemoveSession().add(sessionName);
     }
 
     public String getView() {
@@ -69,5 +77,13 @@ public class ModelView {
 
     public void setApi(boolean api) {
         this.api = api;
+    }
+
+    public List<String> getRemoveSession() {
+        return removeSession;
+    }
+
+    public void setRemoveSession(List<String> removeSession) {
+        this.removeSession = removeSession;
     }
 }
