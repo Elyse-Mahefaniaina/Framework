@@ -14,15 +14,12 @@ import etu1784.framework.Mapping;
 import util.Util;
 import etu1784.framework.ModelView;
 
-@MultipartConfig(
-        fileSizeThreshold = 1024 * 1024,
-        maxFileSize = 1024 * 1024 * 10,
-        maxRequestSize = 1024 * 1024 * 100
-)
+@MultipartConfig()
 public class FrontServlet extends HttpServlet {
     HashMap<String, Mapping> mappingUrls;
     HashMap<String, Object> singleton;
     private Util util;
+    private String sessionVariable;
 
     @Override
     public void init() throws ServletException {
@@ -33,8 +30,12 @@ public class FrontServlet extends HttpServlet {
             this.mappingUrls = new HashMap<>();
             this.singleton = new HashMap<>();
             final String tomPath = "/WEB-INF/classes/";
+            this.sessionVariable = getInitParameter("session");
+
             String path = getServletContext().getRealPath(tomPath);
             util.loadMapping(path, tomPath, mappingUrls, singleton);
+
+            System.out.println(this.sessionVariable);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -60,7 +61,7 @@ public class FrontServlet extends HttpServlet {
 
             if (map == null) throw new Exception("Not Found");
 
-            ModelView mv = util.invokeMethod(request, map, singleton);
+            ModelView mv = util.invokeMethod(request, map, singleton, sessionVariable);
             util.setAttributeRequest(request, mv);
             request.getRequestDispatcher(mv.getView()).forward(request, response);
 
