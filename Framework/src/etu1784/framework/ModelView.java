@@ -7,7 +7,8 @@ public class ModelView {
     private HashMap<String, Object> data;
 
     public void addItem(String key, Object value) {
-        this.data.put(key, value);
+        if(getData() == null) setData(new HashMap<>());
+        data.put(key, value);
     }
 
     public ModelView() {
@@ -17,12 +18,14 @@ public class ModelView {
     public String getView() {
         return view;
     }
+
     public void setView(String view) {
         this.view = view;
     }
     public HashMap<String, Object> getData() {
         return data;
     }
+
     public void setData(HashMap<String, Object> data) {
         this.data = data;
     }
