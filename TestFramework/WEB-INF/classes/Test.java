@@ -3,6 +3,7 @@ package test;
 import etu1784.framework.ModelView;
 import etu1784.framework.FileUpload;
 import etu1784.framework.annotation.ActionMethod;
+import etu1784.framework.annotation.Auth;
 
 
 public class Test {
@@ -10,6 +11,17 @@ public class Test {
     private int id;
     private String nom;
 
+    @ActionMethod( url = "login.do", paramName="profil")
+    public ModelView test(String profil) {
+        ModelView mv = new ModelView();
+
+        mv.setView("/index.jsp");
+        mv.addSession("userProfil", profil);
+
+        return mv;
+    }
+    
+    @Auth( profil = "admin")
     @ActionMethod( url = "save.do")
     public ModelView save() {
         ModelView mv = new ModelView();
@@ -20,6 +32,7 @@ public class Test {
         return mv;
     }
 
+    @Auth( profil = "admin,simple")
     @ActionMethod( url = "setNewTest.do", paramName = "identifiant,name")
     public ModelView newTest(int identifiant, String name) {
         ModelView mv = new ModelView();
