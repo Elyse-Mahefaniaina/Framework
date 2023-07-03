@@ -38,6 +38,16 @@ public class Test {
 
         return mv;
     }
+
+    @ActionMethod( url = "deco.do")
+    public ModelView deco() {
+        ModelView mv = new ModelView();
+
+        mv.setView("/index.jsp");
+        mv.removeSession("userProfil");
+
+        return mv;
+    }
     
     @Auth( profil = "admin")
     @ActionMethod( url = "save.do")

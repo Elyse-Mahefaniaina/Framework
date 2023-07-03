@@ -15,10 +15,6 @@ Sur toute les plateformes Utilisant Tomcat
     <servlet>
         <servlet-name>FrontServlet</servlet-name>
         <servlet-class>etu1784.framework.servlet.FrontServlet</servlet-class>
-        <init-param>
-            <param-name>session</param-name>
-            <param-value>Variable session dans HttpSession</param-value>
-        </init-param>
     </servlet>
 
     <servlet-mapping>
@@ -70,6 +66,122 @@ Il faut que les nom des paramètres correspond au nom de l'attribut du classe ou
         ...
     }
 ```
+<br>
+<br>
+
+* ### Pour ajouter des sessions dans HttpSession depuis le model il suffit d'appeller la fonction __addSession("key", value)__ dans la class __ModelView__  
+***
+```java
+    @ActionMethod( url = "login.do", paramName="profil")
+    public ModelView test(String profil) {
+        ModelView mv = new ModelView();
+
+        mv.setView("/index.jsp");
+        mv.addSession("userProfil", profil);
+
+        return mv;
+    }
+```
+
+<br>
+<br>
+
+* ### Pour proteger une fonction ou ajouter une session pour l'appeler:<br>
+***
+il faut annoter la fonction par __@Auth( profil = "profil Autorise")__
+et ajouter le nom de la variable de session pour contenir le profil dans web.xml
+* <br> _Dans web.xml:_
+
+```xml
+    <servlet>
+        <servlet-name>FrontServlet</servlet-name>
+        <servlet-class>etu1784.framework.servlet.FrontServlet</servlet-class>
+        <init-param>
+            <param-name>session</param-name>
+            <param-value>Variable session dans HttpSession</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>FrontServlet</servlet-name>
+        <url-pattern>*.do</url-pattern>
+    </servlet-mapping>
+```
+
+* <br> _La Fonction:_
+
+```java
+    @Auth( profil = "admin")
+    @ActionMethod( url = "save.do")
+    public ModelView save() {
+        ...    
+    }
+```
+* <br>Si la Fonciton peut etre appeler par plusieurs profil
+
+```java
+    @Auth( profil = "admin,simple")
+    @ActionMethod( url = "setNewTest.do", paramName = "identifiant,name")
+    public ModelView newTest(int identifiant, String name) {
+        ...
+    }
+```
+
+<br>
+<br>
+
+### Pour les format JSON
+***
+1. Si la fonction retourne ModelView, faire __setJson(true)__. 
+Cela transformera automatiquement les contenu de __Data__ dans ModelView au format JSON.
+```java
+    @Auth( profil = "admin")
+    @ActionMethod( url = "save.do")
+    public ModelView save() {
+        ModelView mv = new ModelView();
+
+        mv.addItem("obj", this);
+        mv.setJson(true);
+
+        // dans ce cas this sera transformer en JSON et afficher
+        return mv;
+    }
+```
+
+### Suppression des variable de session
+*** 
+Pour cela ajouter le nom de l'attribut du session dans __ModelView__
+```java
+    @ActionMethod( url = "disconnect.do")
+    public ModelView deco() {
+        ModelView mv = new ModelView();
+
+        mv.setView("/index.jsp");
+        mv.removeSession("userProfil");
+
+        // Dans ce cas userProfil sera supprimer dans la variable session
+
+        return mv;
+    }
+```
+
+2. Si la fonction retourne autre que ModelView, il faut l'annoter par __@restAPI__
+
+```java
+    @restAPI
+    @ActionMethod( url = "rest.do")
+    public HashMap restAPI() {
+        HashMap<String, Object> test = new HashMap<>();
+        
+        test.put("pers1", 123);
+        test.put("pers2", 123);
+        test.put("pers3", 123);
+
+        //dans ce cas test sera affiher dans le navigatuer en format JSON
+
+        return test;
+    }
+```
  
 ## <b> Remarque </b>
 * Toute les class ayant une method d'action doit avoir des setter qui prend des arguments de type __Primitives__ ou  __Date__ comme argument 
@@ -90,3 +202,6 @@ Il faut que les nom des paramètres correspond au nom de l'attribut du classe ou
         ...
     }
 ```
+
+* Pour l'utilisation de fonctionnalité pour les format JSON il faut avoir
+__gson-2.10.1.jar__ au minimum.
