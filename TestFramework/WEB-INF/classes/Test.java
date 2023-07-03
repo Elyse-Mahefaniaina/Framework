@@ -1,15 +1,33 @@
 package test;
 
-import etu1784.framework.ModelView;
+
+import java.util.HashMap;
+
 import etu1784.framework.FileUpload;
+import etu1784.framework.ModelView;
 import etu1784.framework.annotation.ActionMethod;
 import etu1784.framework.annotation.Auth;
+import etu1784.framework.annotation.restAPI;
 
 
 public class Test {
 
     private int id;
     private String nom;
+
+
+    @restAPI
+    @ActionMethod( url = "rest.do")
+    public HashMap restAPI() {
+        HashMap<String, Object> test = new HashMap<>();
+        
+        test.put("pers1", 123);
+        test.put("pers2", 123);
+        test.put("pers3", 123);
+
+        return test;
+    }
+
 
     @ActionMethod( url = "login.do", paramName="profil")
     public ModelView test(String profil) {
