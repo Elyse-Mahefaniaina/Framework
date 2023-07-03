@@ -1,18 +1,24 @@
 package etu1784.framework;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ModelView {
     private String view;
     private HashMap<String, Object> data;
-
-    public void addItem(String key, Object value) {
-        if(getData() == null) setData(new HashMap<>());
-        data.put(key, value);
-    }
+    private HashMap<String, String> session;
 
     public ModelView() {
         data = new HashMap<>();
+        session = new HashMap<>();
+    }
+
+    public void addItem(String key, Object value) {
+        data.put(key, value);
+    }
+
+    public void addSession(String key, String value) {
+        session.put(key, value);
     }
 
     public String getView() {
@@ -30,4 +36,11 @@ public class ModelView {
         this.data = data;
     }
 
+    public HashMap<String, String> getSession() {
+        return session;
+    }
+
+    public void setSession(HashMap<String, String> session) {
+        this.session = session;
+    }
 }

@@ -13,7 +13,7 @@
         <servlet-class>etu1784.framework.servlet.FrontServlet</servlet-class>
         <init-param>
             <param-name>session</param-name>
-            <param-value>session</param-value>
+            <param-value>userProfil</param-value>
         </init-param>
     </servlet>
 

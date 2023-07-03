@@ -38,7 +38,7 @@ public class Util {
             String userPermission = String.valueOf(request.getSession().getAttribute(session));
             if (isIn(allPermission, userPermission)) {
                 return (ModelView) m.invoke(o, value.toArray(Object[]::new));
-            }else throw new Exception("Permission denid");
+            }else throw new Exception("Permission denied");
         }else return (ModelView) m.invoke(o, value.toArray(Object[]::new));
     }
 
@@ -80,6 +80,11 @@ public class Util {
         HashMap<String, Object> donne = mv.getData();
         for(String key : donne.keySet()) {
             request.setAttribute(key, donne.get(key));
+        }
+
+        HashMap<String, String> session = mv.getSession();
+        for (String key : session.keySet()) {
+            request.getSession().setAttribute(key, session.get(key));
         }
     }
 
@@ -216,7 +221,7 @@ public class Util {
 
     public boolean isIn(String[] data, String find) {
         for (String s : data) {
-            if(s.trim().equals(find)) return true;
+            if(s.trim().equals(find.trim())) return true;
         }
         return false;
     }
