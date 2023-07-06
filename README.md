@@ -130,6 +130,28 @@ et ajouter le nom de la variable de session pour contenir le profil dans web.xml
 <br>
 <br>
 
+### Suppression des variable de session
+*** 
+Pour cela ajouter le nom de l'attribut du session dans __ModelView__
+```java
+    @ActionMethod( url = "disconnect.do")
+    public ModelView deco() {
+        ModelView mv = new ModelView();
+
+        mv.setView("/index.jsp");
+        mv.removeSession("userProfil");
+
+        // Dans ce cas userProfil sera supprimer dans la variable session
+
+        return mv;
+    }
+```
+Pour supprimers toute les session, il faut setter __invalidateSession(true)__ de la class __ModelView__
+
+
+<br>
+<br>
+
 ### Pour les format JSON
 ***
 1. Si la fonction retourne ModelView, faire __setJson(true)__. 
@@ -148,22 +170,6 @@ Cela transformera automatiquement les contenu de __Data__ dans ModelView au form
     }
 ```
 
-### Suppression des variable de session
-*** 
-Pour cela ajouter le nom de l'attribut du session dans __ModelView__
-```java
-    @ActionMethod( url = "disconnect.do")
-    public ModelView deco() {
-        ModelView mv = new ModelView();
-
-        mv.setView("/index.jsp");
-        mv.removeSession("userProfil");
-
-        // Dans ce cas userProfil sera supprimer dans la variable session
-
-        return mv;
-    }
-```
 
 2. Si la fonction retourne autre que ModelView, il faut l'annoter par __@restAPI__
 
@@ -178,6 +184,26 @@ Pour cela ajouter le nom de l'attribut du session dans __ModelView__
         test.put("pers3", 123);
 
         //dans ce cas test sera affiher dans le navigatuer en format JSON
+
+        return test;
+    }
+```
+
+* Si la Dans la fonction on souhaite utiliser les session il faut avoir une attribut de type __HashMap<String, Object> session__ et une fonnction setter pour cela __public void setSession(HashMap<String, Object> session)__
+Et annoter la fonction par __@UseSession__
+```java
+    @UseSession
+    @restAPI
+    @ActionMethod( url = "useSession.do")
+    public List<Test> useSession() {
+        List<Test> test = new ArrayList<>();
+
+        for(String s : session.keySet()) {
+            Test a = new Test();
+            a.setId(0);
+            a.setNom(session.get(s));
+            test.add(a);
+        }
 
         return test;
     }

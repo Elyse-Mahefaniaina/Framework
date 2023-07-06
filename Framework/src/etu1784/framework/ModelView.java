@@ -15,6 +15,7 @@ public class ModelView {
     private HashMap<String, Object> data;
     private HashMap<String, String> session;
     private List<String> removeSession;
+    private boolean invalidateSession;
 
     public ModelView() {
         data = new HashMap<>();
@@ -22,6 +23,7 @@ public class ModelView {
         removeSession = new ArrayList<>();
         json = false;
         gson = new Gson();
+        invalidateSession = false;
     }
 
     public String toJson() {
@@ -85,5 +87,13 @@ public class ModelView {
 
     public void setRemoveSession(List<String> removeSession) {
         this.removeSession = removeSession;
+    }
+
+    public boolean isInvalidateSession() {
+        return invalidateSession;
+    }
+
+    public void setInvalidateSession(boolean invalidateSession) {
+        this.invalidateSession = invalidateSession;
     }
 }

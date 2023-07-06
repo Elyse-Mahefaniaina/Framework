@@ -2,13 +2,11 @@ package util;
 
 
 import etu1784.framework.*;
-import etu1784.framework.annotation.ActionMethod;
-import etu1784.framework.annotation.Auth;
-import etu1784.framework.annotation.Scope;
-import etu1784.framework.annotation.restAPI;
+import etu1784.framework.annotation.*;
 import etu1784.framework.type.ScopeType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 
 import java.io.IOException;
@@ -17,11 +15,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.io.File;
-import java.util.ArrayList;
 
 
 public class Util {
@@ -34,6 +29,9 @@ public class Util {
         Object o = this.setObjectByRequest(request, mapping, singleton);
 
         Method m = o.getClass().getMethod(mapping.getMethod(), type.toArray(Class[]::new));
+
+        if(m.isAnnotationPresent(UseSession.class)) setSessionInUseFonction(request, o);
+
         if(!m.isAnnotationPresent(restAPI.class)) {
             if(m.isAnnotationPresent(Auth.class)){
                 String[] allPermission = m.getAnnotation(Auth.class).profil().split(",");
@@ -48,6 +46,17 @@ public class Util {
             mv.setJson(true);
             mv.setApi(true);
             return mv;
+        }
+    }
+
+    public void setSessionInUseFonction(HttpServletRequest request, Object o) throws Exception {
+        HashMap<String, Object> session = sessionToHashmap(request.getSession());
+
+        try {
+            o.getClass().getMethod("setSession", HashMap.class).invoke(o, session);
+        } catch (NoSuchMethodException e) {
+            throw new Exception("The method is annotated by @UseSession but there is no HashMap<String, Object> session in attribute or\n" +
+                    "there is no setSession in method in the model");
         }
     }
 
@@ -99,6 +108,13 @@ public class Util {
         List<String> removeSession = mv.getRemoveSession();
         for (String s : removeSession) {
             request.getSession().removeAttribute(s);
+        }
+
+        if(mv.isInvalidateSession()) {
+            Enumeration<String> sessionName = request.getSession().getAttributeNames();
+            while (sessionName.hasMoreElements()) {
+                request.getSession().removeAttribute(sessionName.nextElement());
+            }
         }
     }
 
@@ -226,11 +242,17 @@ public class Util {
         return data;
     }
 
-    public String processUrl(String url_input, String ctx) {
-        ctx+="/";
-        int ctx_ind = url_input.indexOf(ctx);
+    public HashMap<String, Object> sessionToHashmap(HttpSession session) {
+        HashMap<String, Object> result = new HashMap<>();
 
-        return url_input.substring(ctx_ind + ctx.length());
+        Enumeration<String> keys = session.getAttributeNames();
+        String next;
+        while (keys.hasMoreElements()) {
+            next = keys.nextElement();
+            result.put(next, session.getAttribute(next));
+        }
+
+        return result;
     }
 
     public boolean isIn(String[] data, String find) {
@@ -238,6 +260,13 @@ public class Util {
             if(s.trim().equals(find.trim())) return true;
         }
         return false;
+    }
+
+    public String processUrl(String url_input, String ctx) {
+        ctx+="/";
+        int ctx_ind = url_input.indexOf(ctx);
+
+        return url_input.substring(ctx_ind + ctx.length());
     }
 
     public String casse(String input) {

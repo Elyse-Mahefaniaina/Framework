@@ -2,19 +2,38 @@ package test;
 
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 import etu1784.framework.FileUpload;
 import etu1784.framework.ModelView;
 import etu1784.framework.annotation.ActionMethod;
 import etu1784.framework.annotation.Auth;
 import etu1784.framework.annotation.restAPI;
+import etu1784.framework.annotation.UseSession;
 
 
 public class Test {
 
     private int id;
     private String nom;
+    private HashMap<String, Object> session;
 
+    @UseSession
+    @restAPI
+    @ActionMethod( url = "useSession.do")
+    public List<Test> useSession() {
+        List<Test> test = new ArrayList<>();
+
+        for(String s : session.keySet()) {
+            Test a = new Test();
+            a.setId(0);
+            a.setNom(session.get(s).toString());
+            test.add(a);
+        }
+
+        return test;
+    }
 
     @restAPI
     @ActionMethod( url = "rest.do")
@@ -103,4 +122,13 @@ public class Test {
     public void setNom(String nom) {
         this.nom = nom;
     }
+
+    public HashMap<String, Object> getSession() {
+        return session;
+    }
+
+    public void setSession(HashMap<String, Object> session) {
+        this.session = session;
+    }
+    
 }
